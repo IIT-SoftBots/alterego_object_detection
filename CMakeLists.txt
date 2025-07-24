@@ -15,7 +15,7 @@ catkin_package(
   CATKIN_DEPENDS roscpp rospy geometry_msgs sensor_msgs std_msgs 
 )
 
-catkin_install_python(PROGRAMS scripts/face_recognition.py
+catkin_install_python(PROGRAMS scripts/object_detection.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

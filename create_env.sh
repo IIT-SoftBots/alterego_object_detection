@@ -12,19 +12,15 @@ if [ ! -f "$REQUIREMENTS_FILE" ]; then
   exit 1
 fi
 
-# Source Conda
+# Source Conda (necessario per usare `conda activate` negli script)
 source "$(conda info --base)/etc/profile.d/conda.sh"
 
 # Crea l'ambiente Conda
 echo "Creazione dell'ambiente Conda: $ENV_NAME"
 conda create --name "$ENV_NAME" --yes python=3.10
 
-# Attiva l'ambiente
-echo "Attivazione dell'ambiente: $ENV_NAME"
-conda activate "$ENV_NAME"
-
-# Installa i pacchetti da requirements.txt
+# Esegui un nuovo subshell con l'ambiente attivo per installare i pacchetti
 echo "Installazione dei pacchetti da $REQUIREMENTS_FILE"
-pip install -r "$REQUIREMENTS_FILE"
+conda run -n "$ENV_NAME" pip install -r "$REQUIREMENTS_FILE"
 
 echo "Ambiente $ENV_NAME creato e configurato con successo."
