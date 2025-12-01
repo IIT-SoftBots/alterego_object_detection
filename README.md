@@ -20,6 +20,13 @@
 
 You can install the required Python packages directly with `create_env.sh`
 
+## 🛠️ Clone the package
+```
+cd ~/(your_catkin_path)/src/AlterEgo_v2/utils/alterego_object_dection
+git clone https://github.com/IIT-SoftBots/alterego_object_detection.git
+```
+
+
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
 ## 🛠️ Create conda env
 These four commands download the latest 64-bit version of the Linux installer, rename it to a shorter file name, silently install, and then delete the installer:
@@ -46,7 +53,7 @@ conda config --set auto_activate_base false
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
 
 ## ⚙️ Build the entire solution
-If you want to use the face tracking and recognition, lets create the virtual env from the bash file ```create_env.sh``` inside .
+If you want to use the object detection, lets create the virtual env from the bash file ```create_env.sh``` inside .
 
 (optional) Be sure to accept Conda's ToS on first Conda use:
 ```
