@@ -17,7 +17,7 @@ print(f"[DEBUG] Using Python from: {os.sys.executable}")
 robot_name = os.getenv('ROBOT_NAME', 'default_robot_name')
 print(f"[DEBUG] Robot name: {robot_name}")
 
-# --- Inizializzazione ROS (PRIMA di tutto) --
+# --- Inizializzazione ROS (PRIMA di tutto) ---
 print("[DEBUG] Initializing ROS node...")
 rospy.init_node('yolo_detector_node', anonymous=True)
 print("[DEBUG] ROS node initialized")
