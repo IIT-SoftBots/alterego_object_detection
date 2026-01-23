@@ -1,11 +1,19 @@
 #!/bin/bash
 
-# Attiva l'ambiente conda ros_yolo
-source /home/alterego-base/miniconda3/bin/activate ros_yolo
+# Optional: activate a Python environment if needed
+if command -v conda >/dev/null 2>&1; then
+	source "$(conda info --base)/etc/profile.d/conda.sh"
+	conda activate object_detection_test 2>/dev/null || true
+fi
 
-# Source ROS environment
-source /opt/ros/noetic/setup.bash
-source /home/alterego-base/catkin_ws/devel/setup.bash
+# Source ROS 2 environment (assumes ROS_DISTRO exported or default to humble)
+ROS_DISTRO=${ROS_DISTRO:-humble}
+source "/opt/ros/${ROS_DISTRO}/setup.bash" || exit 1
 
-# Esegui lo script Python con l'interprete dell'ambiente ros_yolo
-exec /home/alterego-base/miniconda3/envs/ros_yolo/bin/python /home/alterego-base/catkin_ws/src/AlterEGO_v2/utils/alterego_object_detection/scripts/object_detection.py "$@"
+# Source workspace if already built
+if [ -f "install/setup.bash" ]; then
+	source install/setup.bash
+fi
+
+# Run the ROS 2 node via entry point
+exec ros2 run alterego_object_detection object_detection "$@"

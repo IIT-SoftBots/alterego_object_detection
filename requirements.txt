@@ -1,14 +1,11 @@
-# Pacchetti essenziali per AlterEGO Face Recognition
+# Runtime dependencies (installed in Python env; ROS 2 deps via apt)
 PyYAML==6.0.2
-rospkg==1.5.1
-catkin-pkg==1.1.0
 opencv-python==4.10.0.84
-empy==4.2
 ultralytics==8.3.49
 supervision==0.25.0
 pyrealsense2==2.66.0
 
-# Dipendenze potenzialmente necessarie per i pacchetti sopra
+# Framework libs
 numpy>=1.23.2
 pillow>=10.4.0
 torch>=2.4.1
