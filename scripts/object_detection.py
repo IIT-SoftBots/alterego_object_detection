@@ -10,6 +10,7 @@ from std_msgs.msg import String
 import os
 import time
 import threading
+from geometry_msgs.msg import Point 
 
 print("[DEBUG] Script started - importing modules completed")
 print(f"[DEBUG] Using Python from: {os.sys.executable}")
@@ -25,9 +26,13 @@ rospy.loginfo("=" * 50)
 rospy.loginfo("YOLO Object Detection Node Starting")
 rospy.loginfo("=" * 50)
 
+# --- Publisher ---
+pub = rospy.Publisher('punto3D', Point, queue_size=10)
+
 # --- Variabili globali ---
 oggetto_da_cercare = None
 camera_available = False
+lato_da_pianificare = None
 pipeline = None
 align = None
 model = None
@@ -42,9 +47,27 @@ def desired_object_callback(msg):
         oggetto_da_cercare = msg.data.strip()
         rospy.loginfo(f"[YOLO] ✓ Filtering for specific object: '{oggetto_da_cercare}'")
 
+def planning_side_callback(msg):
+    global lato_da_pianificare
+    comando = msg.data.lower()
+    if comando not in ["left", "right"]:
+        rospy.loginfo(f"Messaggio ignorato: {comando}")
+        return
+    
+    rospy.loginfo(f"Comando ricevuto: {comando}")
+    if comando == "left":
+        lato_da_pianificare = "left"
+        pass
+    elif comando == "right":
+        lato_da_pianificare = "right"
+        pass
+
+    
 # Sottoscrizione al topic
 rospy.Subscriber(f'/{robot_name}/desired_object', String, desired_object_callback)
+rospy.Subscriber(f'/{robot_name}/planning/side',String, planning_side_callback )
 rospy.loginfo(f"Subscribed to /{robot_name}/desired_object")
+rospy.loginfo(f"Subscribed to /{robot_name}/planning/side")
 
 # Carica il modello YOLO
 rospy.loginfo("Loading YOLO model...")
@@ -144,7 +167,27 @@ try:
                         
                         point_3d = rs.rs2_deproject_pixel_to_point(depth_intrinsics, [cx, cy], distance)
                         x_3d, y_3d, z_3d = point_3d[0], point_3d[1], point_3d[2]
-                        
+
+                        point_3d_sx = rs.rs2_deproject_pixel_to_point(depth_intrinsics, [x1, cy], distance)
+                        x_3d_sx, y_3d_sx, z_3d_sx = point_3d_sx[0], point_3d_sx[1], point_3d_sx[2]
+
+                        point_3d_dx = rs.rs2_deproject_pixel_to_point(depth_intrinsics, [x2, cy], distance)
+                        x_3d_dx, y_3d_dx, z_3d_dx = point_3d_dx[0], point_3d_dx[1], point_3d_dx[2]
+
+                        if class_name == "bottle":
+                            rospy.loginfo(f"Oggetto: {class_name} | Posizione grasping a sx 3D: X={x_3d_sx:.2f} Y={y_3d_sx:.2f} Z={z_3d_sx:.2f} m")
+                            rospy.loginfo(f"Oggetto: {class_name} | Posizione grasping a dx 3D: X={x_3d_dx:.2f} Y={y_3d_dx:.2f} Z={z_3d_dx:.2f} m")
+                            punto = Point()
+                            if lato_da_pianificare == "left":
+                                punto.x = x_3d_sx
+                                punto.y = y_3d_sx
+                                punto.z = z_3d_sx
+                            elif lato_da_pianificare == "right":
+                                punto.x = x_3d_dx
+                                punto.y = y_3d_dx
+                                punto.z = z_3d_dx
+                            pub.publish(punto)  #pubblico il punto 
+                     
                         label = f"{class_name}"
                         position_text = f"X:{x_3d:.2f} Y:{y_3d:.2f} Z:{z_3d:.2f} m"
 
@@ -152,6 +195,8 @@ try:
                         cv2.putText(color_image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,255), 2)
                         cv2.putText(color_image, position_text, (x1, y2 + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
                         cv2.circle(color_image, (cx, cy), 5, (0, 255, 0), -1)
+                        cv2.circle(color_image, (x1, cy), 5, (0, 255, 0), -1) # punto a sinitra per grasping
+                        cv2.circle(color_image, (x2, cy), 5, (0, 255, 0), -1) # punto a destra per graping
 
             # Mostra lo stato del filtro nell'angolo superiore sinistro
             if oggetto_da_cercare is None:
